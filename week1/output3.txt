@@ -1,0 +1,47 @@
+8-Puzzle using A* Search
+Heuristic: Number of Misplaced Tiles
+
+Enter the initial state
+Use 0 for blank space.
+Enter value 1: 1
+Enter value 2: 2
+Enter value 3: 3
+Enter value 4: 4
+Enter value 5: 5
+Enter value 6: 0
+Enter value 7: 7
+Enter value 8: 8
+Enter value 9: 6
+
+Initial State:
+-------------
+
+| 1 2 3 |
+| 4 5 0 |
+| 7 8 6 |
+-------------
+
+Solution Found!
+Total Depth: 1
+Total Cost: 1
+
+Solution Path:
+
+Initial State:
+-------------
+
+| 1 2 3 |
+| 4 5 0 |
+| 7 8 6 |
+-------------
+
+Move: Down
+g(n) = 1
+h(n) = 0
+f(n) = 1
+-------------
+
+| 1 2 3 |
+| 4 5 6 |
+| 7 8 0 |
+-------------
