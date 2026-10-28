@@ -1,0 +1,15 @@
+P Q R | KB
+----------------
+True True True | False
+True True False | False
+True False True | True
+True False False | False
+False True True | False
+False True False | False
+False False True | True
+False False False | False
+
+Entailment Results:
+KB entails R: True
+KB entails R -> P: False
+KB entails Q -> R: True
