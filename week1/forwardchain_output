@@ -1,0 +1,11 @@
+--- Starting Forward Reasoning ---
+
+Iteration 1 inferred:
+ -> Derived: Weapon(M1)
+ -> Derived: Sells(West, M1, Nono)
+ -> Derived: Hostile(Nono)
+
+Iteration 2 inferred:
+ -> Derived: Criminal(West)
+
+[SUCCESS] Query Criminal(West) is PROVED
