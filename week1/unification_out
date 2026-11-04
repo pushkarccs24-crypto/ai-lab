@@ -1,0 +1,7 @@
+Expression 1: ['Knows', 'John', '?x']
+Expression 2: ['Knows', 'John', 'Jane']
+Substitution Result: [('?x', 'Jane')]
+----------------------------------------
+Expression 3: ['P', '?x']
+Expression 4: ['P', ['F', '?x']]
+Substitution Result: FAILURE
