@@ -1,0 +1,156 @@
+import copy
+
+# Helper functions for variables and substitutions
+def is_variable(x):
+    """Variables start with a question mark, e.g., '?x'."""
+    return isinstance(x, str) and x.startswith('?')
+
+def substitute(subst, literal):
+    """Applies a substitution dictionary to a literal (predicate + arguments)."""
+    pred, args = literal[0], literal[1:]
+    new_args = [subst.get(arg, arg) for arg in args]
+    return (pred, *new_args)
+
+def match_literal(pattern, fact):
+    """
+    Matches a pattern (with variables) against a concrete fact.
+    Returns a substitution dict if it matches, or None if it fails.
+    """
+    if pattern[0] != fact[0] or len(pattern) != len(fact):
+        return None
+    
+    subst = {}
+    for p_arg, f_arg in zip(pattern[1:], fact[1:]):
+        if is_variable(p_arg):
+            if p_arg in subst and subst[p_arg] != f_arg:
+                return None  # Variable bound to conflicting values
+            subst[p_arg] = f_arg
+        elif p_arg != f_arg:
+            return None  # Constant mismatch
+    return subst
+
+def merge_substitutions(s1, s2):
+    """Merges two substitution dictionaries. Returns None if there's a conflict."""
+    if s1 is None or s2 is None:
+        return None
+    merged = copy.deepcopy(s1)
+    for var, val in s2.items():
+        if var in merged and merged[var] != val:
+            return None
+        merged[var] = val
+    return merged
+
+
+class FOLKnowledgeBase:
+    def __init__(self):
+        self.facts = set()  # Set of known concrete facts (tuples)
+        self.rules = []     # List of rules: (premises, conclusion)
+
+    def add_fact(self, fact):
+        """Adds a constant fact tuple, e.g., ('American', 'West')"""
+        self.facts.add(fact)
+
+    def add_rule(self, premises, conclusion):
+        """Adds a rule where premises is a list of literals and conclusion is one literal."""
+        self.rules.append((premises, conclusion))
+
+    def _find_rule_bindings(self, premises, current_subst={}):
+        """Recursively matches rule premises against the facts to find all valid variable bindings."""
+        if not premises:
+            return [current_subst]
+        
+        first_premise = premises[0]
+        remaining_premises = premises[1:]
+        
+        # Apply what we know so far to the first premise
+        substituted_premise = substitute(current_subst, first_premise)
+        
+        all_bindings = []
+        for fact in self.facts:
+            match_subst = match_literal(substituted_premise, fact)
+            if match_subst is not None:
+                new_subst = merge_substitutions(current_subst, match_subst)
+                # Recursively match the rest of the premises with this new binding
+                deep_bindings = self._find_rule_bindings(remaining_premises, new_subst)
+                all_bindings.extend(deep_bindings)
+                
+        return all_bindings
+
+    def forward_chain(self, query):
+        """
+        Executes forward reasoning. Continually infers new facts from rules 
+        until the query is found or no new facts can be deduced.
+        """
+        print("--- Starting Forward Reasoning ---")
+        step = 1
+        
+        while True:
+            new_facts_inferred = set()
+            
+            # Check every rule to see if its premises can be satisfied by current facts
+            for premises, conclusion in self.rules:
+                bindings = self._find_rule_bindings(premises, {})
+                
+                for binding in bindings:
+                    # Deduce the concrete conclusion using the valid variable bindings
+                    inferred_fact = substitute(binding, conclusion)
+                    
+                    if inferred_fact not in self.facts:
+                        new_facts_inferred.add(inferred_fact)
+            
+            # If no new facts were inferred during this pass, we've hit a dead end
+            if not new_facts_inferred:
+                print("\nNo more facts can be inferred.")
+                break
+                
+            # Add newly discovered facts to our Knowledge Base
+            print(f"\nIteration {step} inferred:")
+            for fact in new_facts_inferred:
+                print(f" -> Derived: {fact[0]}({', '.join(fact[1:])})")
+                self.facts.add(fact)
+                
+            # Early exit if we successfully deduced the target query
+            if query in self.facts:
+                print(f"\n[SUCCESS] Query {query[0]}({', '.join(query[1:])}) is PROVED!")
+                return True
+                
+            step += 1
+            
+        if query in self.facts:
+            return True
+        else:
+            print(f"\n[FAILURE] Could not prove query: {query[0]}({', '.join(query[1:])})")
+            return False
+
+
+# --- Running the Knowledge Base Example ---
+if __name__ == "__main__":
+    kb = FOLKnowledgeBase()
+
+    # 1. Base Facts (Ground literals)
+    kb.add_fact(("American", "West"))
+    kb.add_fact(("Enemy", "Nono", "America"))
+    kb.add_fact(("Owns", "Nono", "M1"))
+    kb.add_fact(("Missile", "M1"))
+
+    # 2. Rules (First-Order Logic Implications)
+    # Rule 1: Missile(?x) => Weapon(?x)
+    kb.add_rule([("Missile", "?x")], ("Weapon", "?x"))
+    
+    # Rule 2: Enemy(?c, "America") => Hostile(?c)
+    kb.add_rule([("Enemy", "?c", "America")], ("Hostile", "?c"))
+    
+    # Rule 3: Missile(?x) & Owns("Nono", ?x) => Sells("West", ?x, "Nono")
+    kb.add_rule([("Missile", "?x"), ("Owns", "Nono", "?x")], ("Sells", "West", "?x", "Nono"))
+    
+    # Rule 4: American(?x) & Weapon(?y) & Sells(?x, ?y, ?z) & Hostile(?z) => Criminal(?x)
+    kb.add_rule(
+        [("American", "?x"), ("Weapon", "?y"), ("Sells", "?x", "?y", "?z"), ("Hostile", "?z")], 
+        ("Criminal", "?x")
+    )
+
+    # Define our query
+    target_query = ("Criminal", "West")
+    
+    # Execute forward chaining
+    kb.forward_chain(target_query)
