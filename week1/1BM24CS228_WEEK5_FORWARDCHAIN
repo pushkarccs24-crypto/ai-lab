@@ -1,43 +1,28 @@
-# First Order Logic using Resolution
 
-# Knowledge Base
-clauses = [
-    ["~Food(x)", "Likes(John,x)"],
-    ["Food(Apple)"],
-    ["Food(Vegetables)"],
-    ["~Eats(x,y)", "Killed(x)", "Food(y)"],
-    ["Eats(Anil,Peanuts)"],
-    ["Alive(Anil)"],
-    ["~Eats(Anil,x)", "Eats(Harry,x)"],
-    ["Killed(x)", "Alive(x)"],
-    ["~Alive(x)", "~Killed(x)"]
+# Forward Chaining Algorithm
+
+facts = {"A", "B"}
+
+rules = [
+    ({"A", "B"}, "C"),
+    ({"C"}, "D"),
+    ({"D", "B"}, "E"),
+    ({"E"}, "F")
 ]
 
-# Negated Query
-query = "~Likes(John,Peanuts)"
+print("Initial Facts:", facts)
 
-print("Knowledge Base:")
-for clause in clauses:
-    print(clause)
+while True:
+    new_fact_found = False
 
-print("\nNegated Query:", query)
+    for premises, conclusion in rules:
+        if premises.issubset(facts):
+            if conclusion not in facts:
+                facts.add(conclusion)
+                print("Derived:", conclusion)
+                new_fact_found = True
 
-print("\nResolution Steps:")
+    if not new_fact_found:
+        break
 
-print("1. Resolve Likes(John,Peanuts) with negated query")
-print("   Result: ~Food(Peanuts)")
-
-print("2. Resolve with ~Eats(x,y) OR Killed(x) OR Food(y)")
-print("   Result: ~Eats(Anil,Peanuts) OR Killed(Anil)")
-
-print("3. Resolve with Eats(Anil,Peanuts)")
-print("   Result: Killed(Anil)")
-
-print("4. Resolve with ~Alive(x) OR ~Killed(x)")
-print("   Result: ~Alive(Anil)")
-
-print("5. Resolve with Alive(Anil)")
-print("   Result: Empty Clause {}")
-
-print("\nQuery Proved Successfully!")
-print("John likes Peanuts.")
+print("\nFinal Knowledge Base:", facts)
