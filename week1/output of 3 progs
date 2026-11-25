@@ -1,0 +1,60 @@
+alpha beta pruning output
+
+Enter depth of tree: 3
+Enter leaf node values:
+3
+5
+6
+9
+1
+2
+0
+-1
+Optimal value: 5
+
+SIMULATED ANNEALING FOR 8 QUEENS
+
+Solution Found!
+Queen positions: [3, 7, 0, 4, 6, 1, 5, 2]
+Heuristic value: 0
+Steps: 1737
+Restarts: 1
+
+Chessboard:
+ .  .  Q  .  .  .  .  . 
+ .  .  .  .  .  Q  .  . 
+ .  .  .  .  .  .  .  Q 
+ Q  .  .  .  .  .  .  . 
+ .  .  .  Q  .  .  .  . 
+ .  .  .  .  .  .  Q  . 
+ .  .  .  .  Q  .  .  . 
+ .  Q  .  .  .  .  .  . 
+
+FOL RESOLUTION
+Knowledge Base:
+['~Food(x)', 'Likes(John,x)']
+['Food(Apple)']
+['Food(Vegetables)']
+['~Eats(x,y)', 'Killed(x)', 'Food(y)']
+['Eats(Anil,Peanuts)']
+['Alive(Anil)']
+['~Eats(Anil,x)', 'Eats(Harry,x)']
+['Killed(x)', 'Alive(x)']
+['~Alive(x)', '~Killed(x)']
+
+Negated Query: ~Likes(John,Peanuts)
+
+Resolution Steps:
+1. Resolve Likes(John,Peanuts) with negated query
+   Result: ~Food(Peanuts)
+2. Resolve with ~Eats(x,y) OR Killed(x) OR Food(y)
+   Result: ~Eats(Anil,Peanuts) OR Killed(Anil)
+3. Resolve with Eats(Anil,Peanuts)
+   Result: Killed(Anil)
+4. Resolve with ~Alive(x) OR ~Killed(x)
+   Result: ~Alive(Anil)
+5. Resolve with Alive(Anil)
+   Result: Empty Clause {}
+
+Query Proved Successfully!
+John likes Peanuts.
